@@ -7,6 +7,11 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import unicode_literals
 import six
+import logging
+import re
+from os import environ
+
+logger = logging.getLogger(__file__)
 
 
 class ConfigValue(object):
@@ -135,22 +140,25 @@ class Configure(object):
                         value)
                     d[k] = value
                 if value.startswith("$"):
-                    import re
-                    from os import environ
                     try:
                         value = value[1:]
                         valid_var_name = re.match(r'^[A-Za-z_][\w\d_]+', value)
                         if valid_var_name:
                             value = environ[value]
+                            print(value)
                         else:
-                            msg = ("'%s' is an invalid env-var name\n"
-                                  "Env-var names must be alphnumeric "
-                                  "and start with either a letter or '_'" % value)
+                            msg = ("'%s' is an invalid env-var name.\n"
+                                   "Env-var names must contain only "
+                                   "alphanumeric and '_' characters and start "
+                                   "with either a letter or '_'." % value)
                             raise ValueError(msg)
-                    except ValueError:
-                        raise
+                    except KeyError:
+                        logger.warning("Imported env-var '%(name)s' "
+                                       "was not defined in environment."
+                                       "'%(name)s' set to 'None'." % {"name": value})
+                        value = None
                     except Exception:
-                        value = None                    
+                        raise
                     d[k] = value
             c[k] = _C(d[k])
         f.close()
