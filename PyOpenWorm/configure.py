@@ -145,7 +145,6 @@ class Configure(object):
                         valid_var_name = re.match(r'^[A-Za-z_][\w\d_]+', value)
                         if valid_var_name:
                             value = environ[value]
-                            print(value)
                         else:
                             msg = ("'%s' is an invalid env-var name.\n"
                                    "Env-var names must contain only "
