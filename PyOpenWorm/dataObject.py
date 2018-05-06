@@ -2,7 +2,6 @@ from __future__ import print_function
 from functools import partial
 import rdflib as R
 from rdflib.term import URIRef
-import random as RND
 import logging
 from itertools import groupby
 import six
@@ -275,7 +274,7 @@ class BaseDataObject(six.with_metaclass(ContextMappedClass,
             super(BaseDataObject, self).__setattr__(name, val)
 
     def count(self):
-        return len(GraphObjectQuerier(self, self.rdf, parallel=False)())
+        return len(GraphObjectQuerier(self, self._graph(), parallel=False)())
 
     def _graph(self):
         return self.context.rdf_graph()
@@ -450,6 +449,7 @@ class BaseDataObject(six.with_metaclass(ContextMappedClass,
             c = type(property_class_name,
                      tuple(classes),
                      props)
+            c.__module__ = owner_class.__module__
             owner_class.mapper.add_class(c)
             PropertyTypes[_PropertyTypes_key] = c
         return cls.attach_property(owner, c)
